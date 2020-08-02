@@ -1,19 +1,17 @@
 var canvas_w = 1200
 var canvas_h = 900
 
-var qtyLayers = 6;
-var neurons_by_layers;
-var Position = []
-var Positions = []
-var layerSpacingY = 0
-var state = 1;
+var number_of_layers = 6;
+var neurons_by_layers_qty;
+var neuron_single_position = []
+var neuron_positions = []
+var neurons_spacing_Y_axis = 0
+var hide_state = 1;
 
-var input, button;
-var myoutput;
-var inputs_XY = [];
 
+var neurons_by_layers_qty_inputs = [];
 var neurons = [];
-var activationLines = [];
+var weigth_lines = [];
 
 
 function setup() {
@@ -32,98 +30,90 @@ function setup() {
     bin6 = createInput("3").position(canvas_w - 220 + 150, 40).size(15);
     bin7 = createInput("0").position(canvas_w - 220 + 175, 40).size(15);
 
-    playButton = createButton("Hide").position(canvas_w - 240 + 175, canvas_h - 50).size(50);
+    hide_button = createButton("Hide").position(canvas_w - 240 + 175, canvas_h - 50).size(50);
 
-    inputs_XY = [bin1, bin2, bin3, bin4, bin5, bin6, bin7];
+    neurons_by_layers_qty_inputs = [bin1, bin2, bin3, bin4, bin5, bin6, bin7];
 
-    neurons_by_layers = [parseInt(bin1.value()), parseInt(bin2.value()), parseInt(bin3.value()), parseInt(bin4.value()), parseInt(bin5.value()), parseInt(bin6.value()), parseInt(bin7.value())]
-
-    
+    update_neurons_by_layers();
 }
-function stateSW() {
-    if (state == 0) {
-        state = 1;
-    } else {
-        state = 0;
-    }
-
+function hide_picture() {
+    hide_state = (hide_state == 1) ? (0) : (1)
 }
 
+function update_neurons_by_layers() {
+    neurons_by_layers_qty = [parseInt(bin1.value()), parseInt(bin2.value()), parseInt(bin3.value()), parseInt(bin4.value()), parseInt(bin5.value()), parseInt(bin6.value()), parseInt(bin7.value())]
+}
+function glow_thing(neuron_stuff) {
+
+    let r = Math.floor((Math.random() * 255) + 0);
+    let g = Math.floor((Math.random() * 255) + 0);
+    let b = Math.floor((Math.random() * 255) + 0);
+
+    this.neuron_stuff = neuron_stuff
+    this.neuron_stuff.glow(color(r, g, b))
+}
 function draw() {
 
     background(220);
 
+    number_of_layers = inputLayers.value();
+    hide_button.mousePressed(hide_picture);
 
-    qtyLayers = inputLayers.value();
+    update_neurons_by_layers();
 
-    playButton.mousePressed(stateSW);
+    var layer_spacing_X_axis = floor(canvas_w / number_of_layers);
+    neurons_spacing_Y_axis = floor(canvas_h / (max(neurons_by_layers_qty) + 1));
+    var neuron_radius = neurons_spacing_Y_axis / 2.5;
 
-    //console.log(inputs_XY[0].value())
-    //neurons_by_layers =[9,6,7,4,5,3,0]
-    neurons_by_layers = [parseInt(bin1.value()), parseInt(bin2.value()), parseInt(bin3.value()), parseInt(bin4.value()), parseInt(bin5.value()), parseInt(bin6.value()), parseInt(bin7.value())]
+    //Fill neuron positions
+    for (i = 0; i < number_of_layers; i++) {
 
-    //////////////////////////////////////////////////////////////////
+        var vertical_layer_offset = (canvas_h - (neurons_spacing_Y_axis * neurons_by_layers_qty[i])) / 2 - neurons_spacing_Y_axis / 2;
 
-    var layerSpacingX = floor(canvas_w / qtyLayers);
-    layerSpacingY = floor(canvas_h / (max(neurons_by_layers) + 1));
-    var neuron_radius = layerSpacingY / 2.5;
-
-    for (i = 0; i < qtyLayers; i++) {
-
-        var layerCentroid = (canvas_h - (layerSpacingY * neurons_by_layers[i])) / 2 - layerSpacingY / 2;
-
-        for (j = 0; j < neurons_by_layers[i]; j++) {
-            Position.push([(i + 0.5) * layerSpacingX, (j + 1) * layerSpacingY + layerCentroid,i,j])
+        for (j = 0; j < neurons_by_layers_qty[i]; j++) {
+            neuron_single_position.push([(i + 0.5) * layer_spacing_X_axis, (j + 1) * neurons_spacing_Y_axis + vertical_layer_offset, i, j])
         }
 
-        Positions.push(Position)
-        Position = []
+        neuron_positions.push(neuron_single_position)
+        neuron_single_position = []
     }
-    //////////////////////////////////////////////////////////////////
 
-    if (state) {
-        for (i = 0; i < Positions.length - 1; i++) {
+    if (hide_state) {
 
-            prevLayer = Positions[i]
-            nextLayer = Positions[i + 1]
+        //Create Lines
+
+        for (i = 0; i < neuron_positions.length - 1; i++) {
+
+            prevLayer = neuron_positions[i]
+            nextLayer = neuron_positions[i + 1]
 
             for (var prevNeuron of prevLayer) {
                 for (var nextNeuron of nextLayer) {
-                    
-                    let red = color(0,0,0);
-
-                    tra = new WeightLine(prevNeuron[0], prevNeuron[1], nextNeuron[0], nextNeuron[1],red,2);
-
-                    activationLines.push(tra);
+                    weigth_lines.push(new WeightLine(prevNeuron[0], prevNeuron[1], nextNeuron[0], nextNeuron[1], 2));
                 }
             }
 
         }
+        //Create Neurons
+        for (var neuron_position of neuron_positions) {
 
-        for (var layerPositions of Positions) {
+            for (neuron_single_position of neuron_position) {
+                var x = neuron_single_position[0]
+                var y = neuron_single_position[1]
 
-            for (var neuronPosition of layerPositions) {
-                var x = neuronPosition[0]
-                var y = neuronPosition[1]
-
-                let index_Layer = neuronPosition[2]
-                let index_Neuron = neuronPosition[3]
+                let index_Layer = neuron_single_position[2]
+                let index_Neuron = neuron_single_position[3]
 
 
-                let c1 = color(147, 204, 0);
-              
-                //fill(c);
-                activationValue =+0.5
+                activationValue = +0.5
 
-                if (activationValue < 0 ){
+                if (activationValue < 0) {
                     activationString = activationValue.toString()
-                }else{
-                    activationString = "+"+activationValue.toString()
+                } else {
+                    activationString = "+" + activationValue.toString()
                 }
 
-                bub = new Bubble(x, y, neuron_radius,c1,index_Layer,index_Neuron,activationString);
-
-                neurons.push(bub);
+                neurons.push(new NeuronBubble(x, y, neuron_radius,index_Layer, index_Neuron, activationString));
 
 
             }
@@ -131,66 +121,46 @@ function draw() {
 
         }
     }
-    //////////////////////////////////////////////////
-    
-    strokeWeight(2)
 
-    Positions = [];
+    strokeWeight(3)
 
-    
+    neuron_positions = [];
 
-    for (dr of activationLines){
-       
-        dr.move();
-        dr.glow(color(0, 0,255));
-        
-        dr.show();
-       
-        
-    }        
+    for (weigth_line of weigth_lines) {
 
-    
-    for (let i = 0; i < neurons.length; i++) {
-        
-        rand1 =Math.floor((Math.random() * 4) + 0);
-        rand2 =Math.floor((Math.random() * 4) + 0);
+        //weigth_line.move();
+        //glow_thing(weigth_line);
+        weigth_line.show();
 
-        if (neurons[i].index_Layer==rand1){
-            if (neurons[i].index_Neuron==rand2){
-
-                let c2 = color(255,0,0);
-                console.log("sad");
-                neurons[i].glow(c2);
-                neurons[i].move();
-            }
-        }
-        neurons[i].show();
-        
     }
 
+
+    for (neuron of neurons) {
+        //neuron.move();
+        glow_thing(neuron);
+        neuron.show();
+
+    }
 
     neurons = [];
-    activationLines = [];
+    weigth_lines = [];
 
-   // fill(0);
 
-    var parameters = 0;
+    var hyper_parameters = 0;
 
-    for (k=0;k<qtyLayers-1;k++){
-        var parameters = parameters + neurons_by_layers[k]*neurons_by_layers[k+1];
+    for (k = 0; k < number_of_layers - 1; k++) {
+        var hyper_parameters = hyper_parameters + neurons_by_layers_qty[k] * neurons_by_layers_qty[k + 1];
     }
-   var sum = 0;
+    var sum = 0;
 
-    for(p=1;p<qtyLayers-1;p++){
-        sum = sum + neurons_by_layers[p];
+    for (p = 1; p < number_of_layers - 1; p++) {
+        sum = sum + neurons_by_layers_qty[p];
     }
 
-    parameters = parameters + sum ;
-    
-    text("Parámetros: "+parseInt(parameters), 300, canvas_h - 40);
+    hyper_parameters = hyper_parameters + sum;
+
+    text("Parámetros: " + parseInt(hyper_parameters), 300, canvas_h - 40);
 
     //Textos
 
-
-    
 }

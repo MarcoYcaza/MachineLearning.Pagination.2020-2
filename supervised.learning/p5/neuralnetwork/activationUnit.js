@@ -1,10 +1,10 @@
 
-class Bubble {
-    constructor(x, y, r,c,index_Layer,index_Neuron,activationValue) {
+class NeuronBubble {
+    constructor(x, y, r,index_Layer,index_Neuron,activationValue) {
         this.x = x;
         this.y = y;
         this.r = r;
-        this.color = c;
+        this.color = color(0,0,0);
         this.index_Layer = index_Layer;
         this.index_Neuron = index_Neuron;
         this.activationValue = activationValue;
@@ -32,14 +32,14 @@ class Bubble {
 //line(prevNeuron[0], prevNeuron[1], nextNeuron[0], nextNeuron[1]);
 
 class WeightLine {
-    constructor(x_i, y_i,x_f,y_f,activationColor,weigthValue) {
+    constructor(x_i, y_i,x_f,y_f,weigthValue) {
 
         this.x_i = x_i;
         this.y_i = y_i;
         this.x_f = x_f;
         this.y_f = y_f;
 
-        this.colorW = activationColor;
+        this.colorW = color(0,0,0);
         this.weigthValue = weigthValue;
     }
 
@@ -51,10 +51,8 @@ class WeightLine {
 
     show() {
         stroke(this.colorW);
-        strokeWeight(random(1, 5));
+        //strokeWeight(random(1, 5));
         line(this.x_i,this.y_i,this.x_f, this.y_f);
-        
-     //   text(this.activationValue, this.x-13, this.y+5);
     }
 
     glow(newColor) {
