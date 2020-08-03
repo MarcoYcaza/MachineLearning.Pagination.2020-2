@@ -16,7 +16,8 @@ var weigth_lines = [];
 
 function setup() {
     createCanvas(canvas_w, canvas_h);
-    /////////////////////////////////
+
+    //User interface controllers
     inputLayers = createSlider(3, 7, 6, 1).position(canvas_w - 200, 20).size(120);
     createDiv('layers').position(canvas_w - 300, 20).size(60);
 
@@ -36,22 +37,7 @@ function setup() {
 
     update_neurons_by_layers();
 }
-function hide_picture() {
-    hide_state = (hide_state == 1) ? (0) : (1)
-}
 
-function update_neurons_by_layers() {
-    neurons_by_layers_qty = [parseInt(bin1.value()), parseInt(bin2.value()), parseInt(bin3.value()), parseInt(bin4.value()), parseInt(bin5.value()), parseInt(bin6.value()), parseInt(bin7.value())]
-}
-function glow_thing(neuron_stuff) {
-
-    let r = Math.floor((Math.random() * 255) + 0);
-    let g = Math.floor((Math.random() * 255) + 0);
-    let b = Math.floor((Math.random() * 255) + 0);
-
-    this.neuron_stuff = neuron_stuff
-    this.neuron_stuff.glow(color(r, g, b))
-}
 function draw() {
 
     background(220);
@@ -66,6 +52,7 @@ function draw() {
     var neuron_radius = neurons_spacing_Y_axis / 2.5;
 
     //Fill neuron positions
+    //Note that i and j are very important since represent index of the weight and neuron arrays
     for (i = 0; i < number_of_layers; i++) {
 
         var vertical_layer_offset = (canvas_h - (neurons_spacing_Y_axis * neurons_by_layers_qty[i])) / 2 - neurons_spacing_Y_axis / 2;
@@ -113,7 +100,7 @@ function draw() {
                     activationString = "+" + activationValue.toString()
                 }
 
-                neurons.push(new NeuronBubble(x, y, neuron_radius,index_Layer, index_Neuron, activationString));
+                neurons.push(new NeuronBubble(x, y, neuron_radius, index_Layer, index_Neuron, activationString));
 
 
             }
@@ -159,8 +146,7 @@ function draw() {
 
     hyper_parameters = hyper_parameters + sum;
 
+    //An embeded message
+
     text("Parámetros: " + parseInt(hyper_parameters), 300, canvas_h - 40);
-
-    //Textos
-
 }
