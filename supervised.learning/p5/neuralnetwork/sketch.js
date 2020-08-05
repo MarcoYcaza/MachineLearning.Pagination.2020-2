@@ -5,17 +5,28 @@ var number_of_layers = 6;
 var neurons_by_layers_qty;
 var neuron_single_position = []
 var neuron_positions = []
+var neuron_activation_values = []
 var neurons_spacing_Y_axis = 0
 var hide_state = 1;
 
+var glow_line_state = 0;
+var move_line_state = 0;
+
+var glow_neuron_state = 0;
+var move_neuron_state = 0;
 
 var neurons_by_layers_qty_inputs = [];
 var neurons = [];
 var weigth_lines = [];
+var index_temp = 0;
+
 
 
 function setup() {
     createCanvas(canvas_w, canvas_h);
+
+
+    //neuron_activation_values  = [0.2,-0.1,0.3,0.9,]
 
     //User interface controllers
     inputLayers = createSlider(3, 7, 6, 1).position(canvas_w - 200, 20).size(120);
@@ -31,8 +42,12 @@ function setup() {
     bin6 = createInput("3").position(canvas_w - 220 + 150, 40).size(15);
     bin7 = createInput("0").position(canvas_w - 220 + 175, 40).size(15);
 
-    hide_button = createButton("Hide").position(canvas_w - 240 + 175, canvas_h - 50).size(50);
-
+    hide_button = createButton("Hide ALL").position(canvas_w - 240 + 175, canvas_h - 50).size(50);
+    moveLines_button = createButton("Shake L").position(canvas_w - 320 + 175, canvas_h - 50).size(50);
+    glowLines_button = createButton("Glow L").position(canvas_w - 400 + 175, canvas_h - 50).size(50);
+    moveNeurons_button = createButton("Shake N").position(canvas_w - 480 + 175, canvas_h - 50).size(50);
+    glowNeurons_button = createButton("Glow N").position(canvas_w - 560 + 175, canvas_h - 50).size(50);
+    
     neurons_by_layers_qty_inputs = [bin1, bin2, bin3, bin4, bin5, bin6, bin7];
 
     update_neurons_by_layers();
@@ -42,8 +57,17 @@ function draw() {
 
     background(220);
 
+    frameRate(5);
+
+
     number_of_layers = inputLayers.value();
+
     hide_button.mousePressed(hide_picture);
+
+    moveLines_button.mousePressed(move_line);
+    glowLines_button.mousePressed(glow_line);
+    moveNeurons_button.mousePressed(move_neuron);
+    glowNeurons_button.mousePressed(glow_neuron);
 
     update_neurons_by_layers();
 
@@ -54,17 +78,23 @@ function draw() {
     //Fill neuron positions
     //Note that i and j are very important since represent index of the weight and neuron arrays
     for (i = 0; i < number_of_layers; i++) {
+        neuron_single_position = [];
 
         var vertical_layer_offset = (canvas_h - (neurons_spacing_Y_axis * neurons_by_layers_qty[i])) / 2 - neurons_spacing_Y_axis / 2;
 
         for (j = 0; j < neurons_by_layers_qty[i]; j++) {
-            neuron_single_position.push([(i + 0.5) * layer_spacing_X_axis, (j + 1) * neurons_spacing_Y_axis + vertical_layer_offset, i, j])
+            
+            let temp = [(i + 0.5) * layer_spacing_X_axis, (j + 1) * neurons_spacing_Y_axis + vertical_layer_offset, i, j];
+
+            neuron_single_position.push(temp);
         }
 
-        neuron_positions.push(neuron_single_position)
-        neuron_single_position = []
+        neuron_positions.push(neuron_single_position);
+        
+
     }
 
+    console.log(neuron_positions)
     if (hide_state) {
 
         //Create Lines
@@ -82,17 +112,24 @@ function draw() {
 
         }
         //Create Neurons
+
+
         for (var neuron_position of neuron_positions) {
 
             for (neuron_single_position of neuron_position) {
-                var x = neuron_single_position[0]
+
+                
+
+                var x = neuron_single_position[0]     // HAY UN ERROR ACA
                 var y = neuron_single_position[1]
 
                 let index_Layer = neuron_single_position[2]
                 let index_Neuron = neuron_single_position[3]
+                
 
+                let r = ((Math.random() * 2) + -1).toFixed(1);
 
-                activationValue = +0.5
+                activationValue = r
 
                 if (activationValue < 0) {
                     activationString = activationValue.toString()
@@ -100,13 +137,19 @@ function draw() {
                     activationString = "+" + activationValue.toString()
                 }
 
+                console.log(index_temp);
+
                 neurons.push(new NeuronBubble(x, y, neuron_radius, index_Layer, index_Neuron, activationString));
+                index_temp = index_temp+1;
 
-
+                
             }
 
+            
 
         }
+
+       // console.log(neurons)
     }
 
     strokeWeight(3)
@@ -115,16 +158,27 @@ function draw() {
 
     for (weigth_line of weigth_lines) {
 
-        //weigth_line.move();
-        //glow_thing(weigth_line);
+        if (glow_line_state){
+            glow_thing(weigth_line);
+        }
+        if (move_line_state){
+            weigth_line.move();
+        }        
         weigth_line.show();
 
     }
 
 
     for (neuron of neurons) {
-        //neuron.move();
-        glow_thing(neuron);
+
+        if (glow_neuron_state){
+            glow_thing(neuron);
+        } 
+
+        if (move_neuron_state){
+            neuron.move();
+        } 
+        
         neuron.show();
 
     }
@@ -149,4 +203,6 @@ function draw() {
     //An embeded message
 
     text("Parámetros: " + parseInt(hyper_parameters), 300, canvas_h - 40);
+
+    index_temp = 0;
 }

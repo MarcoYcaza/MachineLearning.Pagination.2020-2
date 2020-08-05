@@ -4,7 +4,7 @@ class NeuronBubble {
         this.x = x;
         this.y = y;
         this.r = r;
-        this.color = color(0,0,0);
+        this.color = color(240,240,240);
         this.index_Layer = index_Layer;
         this.index_Neuron = index_Neuron;
         this.activationValue = activationValue;
